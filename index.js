@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const app = express();
-const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
@@ -9,7 +8,6 @@ const PORT = process.env.PORT || 3000;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
 
 async function getJwtToken() {
   try {
@@ -100,6 +98,6 @@ function generateListOfNames(name) {
   return result;
 }
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
