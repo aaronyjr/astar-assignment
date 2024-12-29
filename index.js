@@ -35,6 +35,23 @@ async function getJwtToken() {
   }
 }
 
+app.get('/groups', async (req, res) => {
+    try {
+        const token = await getJwtToken();
+
+        const response = await axios.get(process.env.GROUP_URL, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error retrieving groups:', error.message)
+        res.status(500).json({error: 'Failed to retrieve groups'})
+    }
+})
+
 app.listen(3000, () => {
   console.log(`Server is running on port ${PORT}`);
 });
