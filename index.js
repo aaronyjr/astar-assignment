@@ -1,11 +1,15 @@
 const express = require("express");
 const axios = require("axios");
 const app = express();
-require(`dotenv`).config();
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
 
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 async function getJwtToken() {
   try {
@@ -35,22 +39,66 @@ async function getJwtToken() {
   }
 }
 
-app.get('/groups', async (req, res) => {
-    try {
-        const token = await getJwtToken();
+app.get("/groups", async (req, res) => {
+  try {
+    const token = await getJwtToken();
 
-        const response = await axios.get(process.env.GROUP_URL, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
+    const response = await axios.get(process.env.GROUP_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error('Error retrieving groups:', error.message)
-        res.status(500).json({error: 'Failed to retrieve groups'})
-    }
-})
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error retrieving groups:", error.message);
+    res.status(500).json({ error: "Failed to retrieve groups" });
+  }
+});
+
+app.get("/create-group", (req, res) => {
+  res.render("create-group");
+});
+
+app.post("/create-group", async (req, res) => {
+  const name = req.body.name;
+  try {
+    const token = await getJwtToken();
+    const names = generateListOfNames(name);
+
+    const createGroups = names.map((name) => {
+      return axios.post(
+        process.env.GROUP_URL,
+        { name: name },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    });
+
+    await Promise.all(createGroups);
+    res.status(200).json({ message: "Groups created successfully" });
+  } catch (error) {
+    console.error(
+      "Error creating groups:",
+      error.response?.data || error.message
+    );
+    res
+      .status(500)
+      .json({ error: "Failed to create groups", error: error.message });
+  }
+});
+
+function generateListOfNames(name) {
+  let result = [];
+  for (let i = 1; i <= 5; i++) {
+    const element = name + "-Group" + i.toString();
+    result.push(element);
+  }
+  return result;
+}
 
 app.listen(3000, () => {
   console.log(`Server is running on port ${PORT}`);
