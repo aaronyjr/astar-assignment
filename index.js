@@ -11,19 +11,29 @@ app.use(express.json());
 
 async function getJwtToken() {
   try {
+    const AUTH_URL = "https://dev-apex-01.southeastasia.cloudapp.azure.com:7600/connect/token";
+    const TENANT_ID = "T003";
+    const CONTENT_TYPE = "application/x-www-form-urlencoded";
+    const USERNAME = "applicant";
+    const PASSWORD = "881d&793M";
+    const CLIENT_ID = "External_Integration";
+    const GRANT_TYPE = "password";
+    const CLIENT_SECRET = "3a165ec4-6a3f-a19e-657c-0739e26cb85e";
+    const SCOPE = "PartnerService";
+
     const params = new URLSearchParams({
-      username: process.env.USERNAME,
-      password: process.env.PASSWORD,
-      client_id: process.env.CLIENT_ID,
-      grant_type: process.env.GRANT_TYPE,
-      client_secret: process.env.CLIENT_SECRET,
-      scope: process.env.SCOPE,
+      username: USERNAME,
+      password: PASSWORD,
+      client_id: CLIENT_ID,
+      grant_type: GRANT_TYPE,
+      client_secret: CLIENT_SECRET,
+      scope: SCOPE,
     });
 
-    const response = await axios.post(process.env.AUTH_URL, params, {
+    const response = await axios.post(AUTH_URL, params, {
       headers: {
-        __tenant: process.env.TENANT_ID,
-        "Content-Type": process.env.CONTENT_TYPE,
+        __tenant: TENANT_ID,
+        "Content-Type": CONTENT_TYPE,
       },
     });
 
